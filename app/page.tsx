@@ -10,7 +10,7 @@ import { ScrollArea } from "../components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
-const API_URL = 'https://ad64-2001-e60-8855-2439-84f6-6026-42d0-7bbc.ngrok-free.app/api/stocks';
+const API_URL = 'https://ad64-2001-e60-8855-2439-84f6-6026-42d0-7bbc.ngrok-free.app';
 
 const fetchData = async (data: any) => {
   try {
@@ -103,7 +103,9 @@ export default function Component() {
 
   const fetchStockData = async () => {
     try {
-      const response = await fetch(`${API_URL}/stocks`);
+      const response = await fetch(`${API_URL}/api/stocks`, {
+        mode: 'cors'
+      });
       const data = await response.json();
       setStockData(data);
       setLastUpdated(new Date().toLocaleString('ko-KR'));
@@ -123,7 +125,7 @@ export default function Component() {
   const handleSendMessage = async () => {
     if (inputMessage.trim() !== "") {
       try {
-        const response = await fetch('http://localhost:8000/chat', {
+        const response = await fetch(`${API_URL}/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -131,7 +133,8 @@ export default function Component() {
           body: JSON.stringify({
             query: inputMessage,
             session_id: "test123"
-          })
+          }),
+          mode: 'cors'
         });
 
         console.log('응답:', await response.json());
