@@ -12,23 +12,21 @@ import remarkGfm from 'remark-gfm'
 
 const API_URL = 'https://ad64-2001-e60-8855-2439-84f6-6026-42d0-7bbc.ngrok-free.app';
 
-const fetchData = async (data: any) => {
+const fetchData = async () => {
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/stocks`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
-      mode: 'cors',
+      credentials: 'include',
     });
-    const result = await response.json();
-    return result;
+    const data = await response.json();
+    console.log(data);
   } catch (error) {
     console.error('Error:', error);
-    throw error;
   }
-}
+};
 
 // StockData 인터페이스 추가
 interface StockData {
@@ -99,7 +97,7 @@ export default function Component() {
   const [stockData, setStockData] = React.useState<StockData[]>([])
   const [lastUpdated, setLastUpdated] = React.useState<string>('')
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   const fetchStockData = async () => {
     try {
