@@ -10,16 +10,17 @@ import { ScrollArea } from "../components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
-const API_URL = 'http://localhost:8000';  // FastAPI 기본 포트
+const API_URL = 'https://ad64-2001-e60-8855-2439-84f6-6026-42d0-7bbc.ngrok-free.app/api/stocks';
 
 const fetchData = async (data: any) => {
   try {
-    const response = await fetch(`${API_URL}/your-endpoint`, {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      mode: 'cors',
     });
     const result = await response.json();
     return result;
