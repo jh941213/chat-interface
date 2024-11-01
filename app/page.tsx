@@ -1,5 +1,6 @@
 'use client'
 
+ // Start of Selection
 import * as React from "react"
 import { Send, MoreVertical, ChevronLeft, Phone, Video } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
@@ -8,6 +9,25 @@ import { Input } from "../components/ui/input"
 import { ScrollArea } from "../components/ui/scroll-area" 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+
+const API_URL = 'http://localhost:8000';  // FastAPI 기본 포트
+
+const fetchData = async (data: any) => {
+  try {
+    const response = await fetch(`${API_URL}/your-endpoint`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
 
 // StockData 인터페이스 추가
 interface StockData {
@@ -78,17 +98,16 @@ export default function Component() {
   const [stockData, setStockData] = React.useState<StockData[]>([])
   const [lastUpdated, setLastUpdated] = React.useState<string>('')
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
   const fetchStockData = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/stocks')
-      const data = await response.json()
-      const stockArray = Array.isArray(data) ? data : []
-      setStockData(stockArray)
-      setLastUpdated(new Date().toLocaleTimeString())
-      console.log('Stock data updated at:', new Date().toLocaleTimeString(), stockArray)
+      const response = await fetch(`${API_URL}/stocks`);
+      const data = await response.json();
+      setStockData(data);
+      setLastUpdated(new Date().toLocaleString('ko-KR'));
     } catch (error) {
-      console.error('주식 데이터 가져오기 실패:', error)
-      setStockData([])
+      console.error('주식 데이터 로딩 실패:', error);
     }
   }
 
@@ -102,18 +121,6 @@ export default function Component() {
 
   const handleSendMessage = async () => {
     if (inputMessage.trim() !== "") {
-      const currentMessage = inputMessage;
-      
-      setInputMessage("");
-
-      setMessages(prev => [...prev, { 
-        id: prev.length + 1, 
-        sender: "User", 
-        content: currentMessage 
-      }])
-
-      setIsTyping(true)
-
       try {
         const response = await fetch('http://localhost:8000/chat', {
           method: 'POST',
@@ -121,27 +128,14 @@ export default function Component() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            query: currentMessage,
+            query: inputMessage,
             session_id: "test123"
           })
-        })
+        });
 
-        const data = await response.json()
-        
-        setMessages(prev => [...prev, {
-          id: prev.length + 1,
-          sender: "AI",
-          content: data.response
-        }])
+        console.log('응답:', await response.json());
       } catch (error) {
-        console.error('Error:', error)
-        setMessages(prev => [...prev, {
-          id: prev.length + 1,
-          sender: "AI",
-          content: "죄송합니다. 응답을 받아오는데 문제가 발생했습니다."
-        }])
-      } finally {
-        setIsTyping(false)
+        console.error('에러:', error);
       }
     }
   }
